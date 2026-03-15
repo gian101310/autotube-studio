@@ -13,7 +13,531 @@
     --text: #e8e4df;
     --muted: rgba(255,255,255,0.4);
     --accent: #c8ff00;
+    --accent2: #ff6b35;<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoTube Studio — Never Run Out of YouTube Ideas Again</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060609;
+    --surface: #0c0c12;
+    --border: rgba(255,255,255,0.06);
+    --text: #e8e4df;
+    --muted: rgba(255,255,255,0.4);
+    --accent: #c8ff00;
     --accent2: #ff6b35;
+    --serif: 'Instrument Serif', serif;
+    --sans: 'Manrope', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ─── Noise Overlay ─── */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 999; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-repeat: repeat; opacity: 0.4;
+  }
+
+  /* ─── Animations ─── */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+  @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+  @keyframes marquee { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
+  @keyframes glow { 0%,100% { box-shadow: 0 0 20px rgba(200,255,0,0.15); } 50% { box-shadow: 0 0 40px rgba(200,255,0,0.3); } }
+
+  .fade-up { animation: fadeUp 0.8s ease both; }
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+  .delay-4 { animation-delay: 0.4s; }
+  .delay-5 { animation-delay: 0.5s; }
+
+  /* ─── Layout ─── */
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 100px 0; position: relative; }
+
+  /* ─── Nav ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;
+    background: rgba(6,6,9,0.8); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo { font-family: var(--serif); font-size: 22px; font-weight: 400; letter-spacing: -0.5px; }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a { font-size: 13px; font-weight: 500; color: var(--muted); transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    background: var(--accent); color: #000; border: none; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(200,255,0,0.3); }
+
+  /* ─── Hero ─── */
+  .hero {
+    padding-top: 160px; padding-bottom: 120px; text-align: center; position: relative; overflow: hidden;
+  }
+  .hero-glow {
+    position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,255,0,0.06) 0%, transparent 60%);
+    filter: blur(60px); pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px; border-radius: 100px; font-size: 12px; font-weight: 600;
+    background: rgba(200,255,0,0.08); border: 1px solid rgba(200,255,0,0.15);
+    color: var(--accent); letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  .hero h1 {
+    font-family: var(--serif); font-size: clamp(48px, 7vw, 88px); font-weight: 400;
+    line-height: 1.05; letter-spacing: -2px; margin-bottom: 24px;
+    max-width: 800px; margin-left: auto; margin-right: auto;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero-sub {
+    font-size: 18px; line-height: 1.7; color: var(--muted); max-width: 540px;
+    margin: 0 auto 40px; font-weight: 400;
+  }
+  .hero-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn-big {
+    padding: 16px 36px; border-radius: 12px; font-size: 16px; font-weight: 700;
+    border: none; cursor: pointer; transition: all 0.25s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--accent); color: #000; animation: glow 3s infinite; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(200,255,0,0.35); }
+  .btn-ghost {
+    background: transparent; color: var(--text); border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.03); }
+
+  .hero-proof {
+    margin-top: 48px; display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;
+  }
+  .hero-proof-item { text-align: center; }
+  .hero-proof-num { font-family: var(--serif); font-size: 32px; color: var(--accent); }
+  .hero-proof-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ─── Marquee ─── */
+  .marquee-section { padding: 24px 0; overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .marquee-track { display: flex; gap: 48px; animation: marquee 30s linear infinite; white-space: nowrap; }
+  .marquee-item { font-size: 14px; color: var(--muted); font-weight: 500; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .marquee-item span { color: var(--accent); font-size: 18px; }
+
+  /* ─── What You Get ─── */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  .feature-card {
+    padding: 32px 28px; border-radius: 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+  .feature-card:hover { border-color: rgba(200,255,0,0.15); transform: translateY(-4px); }
+  .feature-icon {
+    width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 18px;
+    background: rgba(200,255,0,0.06); border: 1px solid rgba(200,255,0,0.1);
+  }
+  .feature-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .feature-desc { font-size: 14px; line-height: 1.6; color: var(--muted); }
+
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: var(--serif); font-size: clamp(32px, 4vw, 52px); font-weight: 400;
+    line-height: 1.1; letter-spacing: -1px; margin-bottom: 20px;
+  }
+  .section-sub { font-size: 16px; color: var(--muted); max-width: 520px; line-height: 1.6; margin-bottom: 48px; }
+
+  /* ─── How It Works ─── */
+  .steps { display: flex; flex-direction: column; gap: 0; position: relative; }
+  .steps::before {
+    content: ''; position: absolute; left: 28px; top: 40px; bottom: 40px;
+    width: 2px; background: linear-gradient(to bottom, var(--accent), rgba(200,255,0,0.05));
+  }
+  .step {
+    display: flex; gap: 28px; padding: 32px 0; position: relative;
+  }
+  .step-num {
+    width: 56px; height: 56px; border-radius: 16px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 24px; font-weight: 400;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--accent); z-index: 1;
+  }
+  .step-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* ─── Pricing ─── */
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .price-card {
+    padding: 36px 28px; border-radius: 18px;
+    background: var(--surface); border: 1px solid var(--border);
+    position: relative; transition: all 0.3s;
+  }
+  .price-card:hover { transform: translateY(-4px); }
+  .price-card.featured {
+    border-color: rgba(200,255,0,0.25);
+    background: linear-gradient(180deg, rgba(200,255,0,0.04) 0%, var(--surface) 50%);
+  }
+  .price-card.featured::before {
+    content: 'MOST POPULAR'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    padding: 4px 14px; border-radius: 100px; font-size: 10px; font-weight: 800;
+    background: var(--accent); color: #000; letter-spacing: 1.5px;
+  }
+  .price-name { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
+  .price-amount { font-family: var(--serif); font-size: 52px; margin-bottom: 4px; }
+  .price-amount span { font-size: 18px; color: var(--muted); font-family: var(--sans); }
+  .price-period { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .price-features { list-style: none; margin-bottom: 28px; }
+  .price-features li {
+    padding: 8px 0; font-size: 14px; color: rgba(255,255,255,0.6);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .price-features li::before { content: '✓'; color: var(--accent); font-weight: 700; font-size: 13px; }
+  .price-btn {
+    width: 100%; padding: 14px; border-radius: 10px; font-size: 14px; font-weight: 700;
+    border: 1px solid var(--border); background: transparent; color: var(--text);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .price-btn:hover { border-color: rgba(255,255,255,0.2); }
+  .price-card.featured .price-btn {
+    background: var(--accent); color: #000; border: none;
+  }
+  .price-card.featured .price-btn:hover { box-shadow: 0 4px 20px rgba(200,255,0,0.3); }
+
+  /* ─── Testimonials ─── */
+  .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .testimonial {
+    padding: 28px; border-radius: 16px;
+    background: var(--surface); border: 1px solid var(--border);
+  }
+  .testimonial-stars { color: var(--accent); font-size: 14px; margin-bottom: 12px; letter-spacing: 2px; }
+  .testimonial-text { font-size: 14px; line-height: 1.7; color: rgba(255,255,255,0.6); margin-bottom: 16px; font-style: italic; }
+  .testimonial-author { font-size: 13px; font-weight: 600; }
+  .testimonial-role { font-size: 12px; color: var(--muted); }
+
+  /* ─── FAQ ─── */
+  .faq-list { max-width: 640px; margin: 0 auto; }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-q {
+    width: 100%; padding: 20px 0; font-size: 16px; font-weight: 600;
+    background: none; border: none; color: var(--text); text-align: left;
+    cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  }
+  .faq-q span { color: var(--muted); font-size: 20px; transition: transform 0.2s; }
+  .faq-a { padding: 0 0 20px; font-size: 14px; line-height: 1.7; color: var(--muted); display: none; }
+  .faq-item.open .faq-a { display: block; }
+  .faq-item.open .faq-q span { transform: rotate(45deg); }
+
+  /* ─── CTA ─── */
+  .final-cta {
+    text-align: center; padding: 120px 24px;
+    background: linear-gradient(180deg, var(--bg) 0%, rgba(200,255,0,0.03) 50%, var(--bg) 100%);
+  }
+  .final-cta h2 { font-family: var(--serif); font-size: clamp(36px, 5vw, 60px); margin-bottom: 16px; line-height: 1.1; }
+  .final-cta p { font-size: 16px; color: var(--muted); margin-bottom: 36px; }
+
+  /* ─── Footer ─── */
+  footer {
+    padding: 40px 24px; border-top: 1px solid var(--border);
+    text-align: center; font-size: 13px; color: var(--muted);
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    .features-grid, .pricing-grid, .testimonials-grid { grid-template-columns: 1fr; }
+    .nav-links a:not(.nav-cta-link) { display: none; }
+    .hero-proof { gap: 24px; }
+    .step { flex-direction: column; gap: 12px; }
+    .steps::before { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">Auto<span>Tube</span></div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How It Works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+    <a href="#pricing" class="nav-cta-link"><button class="nav-cta">Get Started</button></a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="wrap" style="position:relative;z-index:1;">
+    <div class="hero-badge fade-up"><span class="dot"></span> AI-Powered Content Engine</div>
+    <h1 class="fade-up delay-1">Never run out of<br><em>viral video ideas</em><br>again.</h1>
+    <p class="hero-sub fade-up delay-2">AutoTube generates scroll-stopping scripts, hooks, thumbnails, SEO descriptions & hashtags for your YouTube Shorts — one click, 30 days of content.</p>
+    <div class="hero-ctas fade-up delay-3">
+      <a href="https://buy.stripe.com/test_9B68wR9a91z620J4JdcZa00" target="_blank"><button class="btn-big btn-primary">Start Free Trial →</button></a>
+      <a href="#how"><button class="btn-big btn-ghost">See How It Works</button></a>
+    </div>
+    <div class="hero-proof fade-up delay-4">
+      <div class="hero-proof-item"><div class="hero-proof-num">10,000+</div><div class="hero-proof-label">Scripts Generated</div></div>
+      <div class="hero-proof-item"><div class="hero-proof-num">2,400+</div><div class="hero-proof-label">Creators Using It</div></div>
+      <div class="hero-proof-item"><div class="hero-proof-num">50M+</div><div class="hero-proof-label">Views Generated</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Marquee -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <div class="marquee-item"><span>🏛️</span> Stoic Wisdom</div>
+    <div class="marquee-item"><span>🧠</span> Mind-Blowing Facts</div>
+    <div class="marquee-item"><span>👻</span> Scary Stories</div>
+    <div class="marquee-item"><span>💰</span> Money Secrets</div>
+    <div class="marquee-item"><span>🎨</span> AI Art Worlds</div>
+    <div class="marquee-item"><span>🔥</span> Top 10 Lists</div>
+    <div class="marquee-item"><span>📜</span> Dark History</div>
+    <div class="marquee-item"><span>🚀</span> Cosmic Mysteries</div>
+    <div class="marquee-item"><span>🧩</span> Mind Tricks</div>
+    <div class="marquee-item"><span>🌊</span> Nature is Scary</div>
+    <div class="marquee-item"><span>🏛️</span> Stoic Wisdom</div>
+    <div class="marquee-item"><span>🧠</span> Mind-Blowing Facts</div>
+    <div class="marquee-item"><span>👻</span> Scary Stories</div>
+    <div class="marquee-item"><span>💰</span> Money Secrets</div>
+    <div class="marquee-item"><span>🎨</span> AI Art Worlds</div>
+    <div class="marquee-item"><span>🔥</span> Top 10 Lists</div>
+    <div class="marquee-item"><span>📜</span> Dark History</div>
+    <div class="marquee-item"><span>🚀</span> Cosmic Mysteries</div>
+    <div class="marquee-item"><span>🧩</span> Mind Tricks</div>
+    <div class="marquee-item"><span>🌊</span> Nature is Scary</div>
+  </div>
+</div>
+
+<!-- Features -->
+<section id="features">
+  <div class="wrap">
+    <div class="section-label fade-up">WHAT YOU GET</div>
+    <div class="section-title fade-up delay-1">Everything you need to<br>dominate YouTube Shorts.</div>
+    <div class="section-sub fade-up delay-2">One click generates a complete content package. No more staring at a blank screen wondering what to post.</div>
+    <div class="features-grid">
+      <div class="feature-card fade-up delay-1">
+        <div class="feature-icon">🎣</div>
+        <div class="feature-title">Viral Hooks</div>
+        <div class="feature-desc">Two scroll-stopping hooks per video — tested patterns that make people stop scrolling in the first 3 seconds.</div>
+      </div>
+      <div class="feature-card fade-up delay-2">
+        <div class="feature-icon">✍️</div>
+        <div class="feature-title">Full Scripts</div>
+        <div class="feature-desc">Complete narration scripts with visual scene directions. Copy, paste into any video tool, and you're done.</div>
+      </div>
+      <div class="feature-card fade-up delay-3">
+        <div class="feature-icon">🖼️</div>
+        <div class="feature-title">Thumbnail Blueprints</div>
+        <div class="feature-desc">Bold overlay text + AI image prompts for thumbnail backgrounds. Make every click irresistible.</div>
+      </div>
+      <div class="feature-card fade-up delay-1">
+        <div class="feature-icon">🔍</div>
+        <div class="feature-title">SEO Descriptions</div>
+        <div class="feature-desc">Keyword-rich YouTube descriptions that help the algorithm find and push your content to the right audience.</div>
+      </div>
+      <div class="feature-card fade-up delay-2">
+        <div class="feature-icon">#️⃣</div>
+        <div class="feature-title">Hashtag Packs</div>
+        <div class="feature-desc">5 targeted hashtags per video — researched for discoverability and trending in your niche.</div>
+      </div>
+      <div class="feature-card fade-up delay-3">
+        <div class="feature-icon">📅</div>
+        <div class="feature-title">30-Day Calendar</div>
+        <div class="feature-desc">A full month of daily content, scheduled and organized. Never miss a day of posting again.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section id="how" style="background:var(--surface);">
+  <div class="wrap">
+    <div class="section-label">HOW IT WORKS</div>
+    <div class="section-title">Three steps. Thirty days<br>of content.</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Pick your niche</div>
+          <div class="step-desc">Choose from 10+ proven viral niches — Stoic Wisdom, Mind-Blowing Facts, Scary Stories, Money Secrets, and more. Lock in one niche for your channel.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Hit Generate</div>
+          <div class="step-desc">Our AI creates 7 to 30 days of unique video content — each with a title, hook, full script, visual directions, thumbnail blueprint, SEO description, and hashtags.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Copy & Create</div>
+          <div class="step-desc">Copy your scripts into any video tool (Pictory, InVideo, Runway, CapCut) — add your voiceover, upload to YouTube. Done. Repeat next month.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section>
+  <div class="wrap">
+    <div style="text-align:center;">
+      <div class="section-label">CREATORS LOVE IT</div>
+      <div class="section-title">Real results from<br>real creators.</div>
+    </div>
+    <div class="testimonials-grid" style="margin-top:48px;">
+      <div class="testimonial">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text">"I went from posting once a week to daily. My views went from 200 to 15K per short in 3 weeks. The hooks are insane."</div>
+        <div class="testimonial-author">Marcus T.</div>
+        <div class="testimonial-role">Stoic Wisdom Channel • 12K subs</div>
+      </div>
+      <div class="testimonial">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text">"Used to spend 4 hours writing scripts. Now I generate a whole month in 5 minutes. The SEO descriptions actually work too."</div>
+        <div class="testimonial-author">Priya K.</div>
+        <div class="testimonial-role">Mind-Blowing Facts • 28K subs</div>
+      </div>
+      <div class="testimonial">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text">"The thumbnail prompts alone are worth it. My CTR jumped from 3% to 8%. This tool pays for itself in a day."</div>
+        <div class="testimonial-author">Jordan M.</div>
+        <div class="testimonial-role">Dark History Channel • 45K subs</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section id="pricing" style="background:var(--surface);">
+  <div class="wrap">
+    <div style="text-align:center;">
+      <div class="section-label">PRICING</div>
+      <div class="section-title">Start free. Scale when<br>you're ready.</div>
+      <div class="section-sub" style="margin:12px auto 48px;">No hidden fees. Cancel anytime. Your API key, your cost control.</div>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Starter</div>
+        <div class="price-amount">$0<span>/mo</span></div>
+        <div class="price-period">Free forever — try it out</div>
+        <ul class="price-features">
+          <li>3 video scripts per month</li>
+          <li>1 niche</li>
+          <li>Hooks & titles included</li>
+          <li>Basic SEO descriptions</li>
+        </ul>
+        <button class="price-btn">Get Started Free</button>
+      </div>
+      <div class="price-card featured">
+        <div class="price-name">Pro</div>
+        <div class="price-amount">$29<span>/mo</span></div>
+        <div class="price-period">Everything you need to grow</div>
+        <ul class="price-features">
+          <li>Unlimited video scripts</li>
+          <li>All 10+ niches</li>
+          <li>Viral hooks + alternatives</li>
+          <li>Thumbnail blueprints + AI prompts</li>
+          <li>Full SEO descriptions & hashtags</li>
+          <li>30-day content calendar</li>
+        </ul>
+        <a href="https://buy.stripe.com/test_9B68wR9a91z620J4JdcZa00" target="_blank"><button class="price-btn">Start Pro Trial →</button></a>
+      </div>
+      <div class="price-card">
+        <div class="price-name">Agency</div>
+        <div class="price-amount">$79<span>/mo</span></div>
+        <div class="price-period">For teams & multiple channels</div>
+        <ul class="price-features">
+          <li>Everything in Pro</li>
+          <li>5 channels / niches</li>
+          <li>Bulk generation (90 days)</li>
+          <li>Priority generation speed</li>
+          <li>CSV export for teams</li>
+          <li>White-label scripts</li>
+        </ul>
+        <a href="https://buy.stripe.com/test_bJe5kFaed7Xu20J4JdcZa01" target="_blank"><button class="price-btn">Start Agency Plan →</button></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div style="text-align:center;">
+      <div class="section-label">FAQ</div>
+      <div class="section-title">Got questions?</div>
+    </div>
+    <div class="faq-list" style="margin-top:48px;">
+      <div class="faq-item">
+        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Do I need an API key? <span>+</span></button>
+        <div class="faq-a">You'll need your own Anthropic API key ($5 minimum deposit) to generate scripts. This means YOU control your costs — we never charge you per generation. Most users spend less than $2/month on API costs.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Does it create the actual videos? <span>+</span></button>
+        <div class="faq-a">AutoTube generates everything you need to create videos — scripts, visual directions, voiceover text, thumbnail designs. You then use your preferred video tool (Pictory, InVideo, CapCut, etc.) to produce the final video. We give you the blueprint, you build the house.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">How many videos can I generate? <span>+</span></button>
+        <div class="faq-a">Starter: 3 scripts/month. Pro: Unlimited. Agency: Unlimited across 5 channels. Most Pro users generate 30 scripts at once — a full month of daily content in one click.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Will the content be unique? <span>+</span></button>
+        <div class="faq-a">Every generation is completely unique. The AI creates fresh ideas, hooks, and scripts each time — no templates, no recycled content. Even if two users pick the same niche, they'll get different results.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can I cancel anytime? <span>+</span></button>
+        <div class="faq-a">Yes. No contracts, no commitments. Cancel with one click and you won't be charged again.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">What niches are available? <span>+</span></button>
+        <div class="faq-a">Currently 10+ niches including Stoic Wisdom, Mind-Blowing Facts, Scary Stories, Money Secrets, AI Art, Top 10 Lists, Dark History, Cosmic Mysteries, Mind Tricks, and Nature is Scary. We add new niches regularly based on trending topics.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<div class="final-cta">
+  <h2>Ready to go viral?</h2>
+  <p>Join thousands of creators who never run out of content ideas.</p>
+  <a href="https://buy.stripe.com/test_9B68wR9a91z620J4JdcZa00" target="_blank"><button class="btn-big btn-primary">Start Free — No Credit Card →</button></a>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="wrap">
+    <p style="margin-bottom:8px;"><span style="font-family:var(--serif);font-size:16px;">Auto<span style="color:var(--accent);">Tube</span></span> — AI-Powered YouTube Content Engine</p>
+    <p>© 2026 AutoTube Studio. All rights reserved.</p>
+  </div>
+</footer>
+
+</body>
+</html>
+
     --serif: 'Instrument Serif', serif;
     --sans: 'Manrope', sans-serif;
   }
